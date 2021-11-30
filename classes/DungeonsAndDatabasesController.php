@@ -13,12 +13,15 @@ class DungeonsAndDatabasesController {
     public function run($parts) {
         $command = $parts[0];
         switch($command) {
-            case "logout":
-                $this->destroySession();
-            case "login":
-            default:
-                $this->login();
-                break;
+          case "MyParties":
+            $this->MyParties();
+            break;
+          case "logout":
+            $this->destroySession();
+          case "login":
+          default:
+            $this->login();
+            break;
         }
 
     }
@@ -32,39 +35,49 @@ class DungeonsAndDatabasesController {
 
     public function login() {
         $error_msg = "";
-        if (isset($_POST["email"])) { /// validate the email coming in
+
+        //POST --> CHECK EMAIL
+        if (isset($_POST["email"])) {
             $data = $this->db->query("select * from user where email = ?;", "s", $_POST["email"]);
             if ($data === false) {
-                $error_msg = "Error checking for user";
-            } else if (!empty($data)) {
-                // user was found!
-                // validate the user's password
-                if (password_verify($_POST["password"], $data[0]["password"])) {
-                    $_SESSION["email"] = $data[0]["email"];
-                    $_SESSION["user_id"] = $data[0]["user_id"];
-                    header("Location: {$this->url}/comics");
-                    return;
-                } else {
-                    $error_msg = "Invalid Password";
-                }
-            } else {
-                $hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
-                $insert = $this->db->query("insert into user (email, password) values (?, ?);", "ss", $_POST["email"], $hash);
+              $error_msg = "Error checking for user";
+            }
+            else if (!empty($data)) {
+              // user was found - Validate their password!
+              if (password_verify($_POST["password"], $data[0]["password"])) {
+                  $_SESSION["email"] = $data[0]["email"];
+                  $_SESSION["username"] = $data[0]["username"];
+                  header("Location: {$this->url}/MyParties");
+                  return;
+              } else {
+                  $error_msg = "Invalid Password";
+              }
+            }
+            else {
+              $hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
+              $insert = $this->db->query("insert into user (email, username, password) values (?, ?, ?);", "sss", $_POST["email"], $_POST["username"], $hash);
                 if ($insert === false) {
                     $error_msg = "Error creating new user";
                 }
 
                 $_SESSION["email"] = $_POST["email"];
-
-                $data = $this->db->query("select * from user where email = ?;", "s", $_POST["email"]);
-                $_SESSION["user_id"] = $data[0]["user_id"];
-
-                header("Location: {$this->url}/comics");
+                $_SESSION["username"] = $_POST["username"];
+                header("Location: {$this->url}/MyParties");
                 return;
             }
 
         }
 
         include "templates/login.php";
+    }
+
+    public function MyParties() {
+        // set user information for the page
+        $user = [
+            "email" => $_SESSION["email"],
+            "username" => $_SESSION["username"]
+        ];
+
+        include("templates/MyParties.php");
     }
 }
