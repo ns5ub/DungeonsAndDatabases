@@ -82,7 +82,7 @@
           var list = $('<div class="list-group-1"><ul class="list-group"></ul></div>');
           for (var u in party_info["users"]) {
             user_info = party_info["users"][u];
-            list.append('<li class="list-group-item">' + user_info["username"] + '(' + user_info["email"] + ')' + delete_user_button + '</li>')
+            list.append('<li class="list-group-item">' + user_info["username"] + '(' + user_info["email"] + ')' + '<button type="reset" class="btn-sm btn-outline-danger" onClick="delete_user_from_party">Delete User</button>' +'</li>')
           }
           info.append(list);
           var email_input = $('<input type="email-address" class="form-control" name="email" placeholder="Email Address">');
