@@ -27,7 +27,6 @@
 
   <script type="text/javascript">
 
-    var party_id = <?= $page_info["party_id"] ?>;
     $(document).ready(function(){
       display_characters();
 
@@ -51,15 +50,33 @@
 
         for(c in json_response["characters"]){
           var char_info = json_response["characters"][c];
+          var row = $('<div></div>');
           var link = $('<a href="<?=$this->url?>/inventories" class="list-group-item list-group-item-action"></a>');
           link.attr("main_inventory_id", char_info["main_inventory_id"]);
           link.click(function(){
             set_inventory($(this).attr("main_inventory_id"));
           });
           link.text(char_info["character_name"]);
-          list.append(link);
+
+          var delete_char_button = $('<button type="button" class="btn btn-close float-right"></button>');
+          delete_char_button.attr("char_id", char_info["character_id"]);
+          delete_char_button.attr("party_id", json_response["party_id"]);
+          delete_char_button.click(function() {
+            delete_char_from_party($(this).attr("char_id"), $(this).attr("party_id"));
+          });
+          //link.append(delete_char_button);
+          //list.append(link);
+
+          row.append(link);
+          row.append(delete_char_button);
+          list.append(row);
         }
       });
+    }
+
+    function delete_char_from_party(character_id, party_id){
+      $.post("<?=$this->url?>/delete_char_from_party", { "character_id" : character_id, "party_id": party_id});
+      location.reload();
     }
 
     function set_inventory(main_inventory_id){

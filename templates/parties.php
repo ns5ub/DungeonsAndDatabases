@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+  .col-auto {
+    margin: 5px;
+  }
+</style>
 
 <head>
 
@@ -31,13 +36,12 @@
   </style>
 
   <script type="text/javascript">
-
-    $(document).ready(function(){
+    $(document).ready(function() {
       display_user_parties();
     });
 
-    function display_user_parties(){
-      $.post("<?=$this->url?>/get_user_parties", function(response) {
+    function display_user_parties() {
+      $.post("<?= $this->url ?>/get_user_parties", function(response) {
 
         var user_parties = JSON.parse(response);
         //console.log("hi");
@@ -48,7 +52,7 @@
         var row_length = 2;
         var col_num = 0;
         var new_row = $('<div class="row justify-content-center"></div>');
-        for(var party_id in user_parties) {
+        for (var party_id in user_parties) {
           var party_info = user_parties[party_id];
           var form_id = "add_user_to_party_form" + party_id;
           var new_col = $('<div class="col-6"></div>');
@@ -56,74 +60,124 @@
           form.attr("id", form_id);
 
           var info = $('<div class="mb-3"></div');
-          var link = $('<legend><a href="<?=$this->url?>/characters">' + party_info["party_name"] + '</a></legend>');
+          var link = $('<legend><a href="<?= $this->url ?>/characters">' + party_info["party_name"] + '</a></legend>');
           link.attr("party_id", party_id);
           link.attr("party_name", party_info["party_name"]);
           //
-          link.click(function(){
+          link.click(function() {
             console.log($(this).attr("party_id"), $(this).attr("party_name"));
             set_party($(this).attr("party_id"), $(this).attr("party_name"));
           });
           info.append(link);
 
+          // List of Users
           var list = $('<div class="list-group-1"><ul class="list-group"></ul></div>');
-          for(var u in party_info["users"]){
+          for (var u in party_info["users"]) {
             user_info = party_info["users"][u];
-            list.append('<li class="list-group-item">' + user_info["username"] + '('+ user_info["email"] + ')'+'</li>')
+            var list_element = $('<li class="list-group-item" style="display: block">' + + '<button type="reset" class="btn-sm btn-outline-danger" onClick="delete_user_from_party">Delete User</button>' +'</li>');
+            list_element.text( user_info["username"] + '(' + user_info["email"] + ')');
+            list_element.attr("id", user_info["email"] + "_" + party_id);
+            // Delete User Button
+            var delete_user_button = $('<button type="button" class="btn btn-close float-right"></button>');
+            delete_user_button.attr("email", user_info["email"]);
+            delete_user_button.attr("party_id", party_id);
+            delete_user_button.click(function() {
+              delete_user_from_party($(this).attr("email"), $(this).attr("party_id"), list);
+            });
+            list_element.append(delete_user_button);
+            list.append(list_element);
           }
           info.append(list);
           var email_input = $('<input type="email-address" class="form-control" name="email" placeholder="Email Address">');
           info.append(email_input);
           form.append(info);
-
+          // Add User
           var submission = $('<div class="col-auto"> </div');
           var button = $('<button type="reset" class="btn btn-primary"></button>');
           button.text("Add User");
-          button.click(function(){
+          button.attr("party_id", party_id);
+          button.attr("form_id", form_id);
+          button.click(function() {
             //console.log($('form#' + form_id).serializeArray());
-            add_user_to_party($('form#' + form_id).serializeArray(), party_id, list);
+            add_user_to_party($('form#' + $(this).attr("form_id")).serializeArray(), $(this).attr("party_id"), list);
           });
           submission.append(button);
           form.append(submission);
           new_col.append(form);
           new_row.append(new_col);
           col_num++;
-          if(col_num == row_length){
+
+          // DELETE party
+          var delete_party = $('<div class="col-auto"> </div');
+          var delete_party_button = $('<button type="reset" class="btn btn-danger" style="text-right"></button>');
+          delete_party_button.text("Delete Party");
+          delete_party_button.attr("party_id", party_id);
+          delete_party_button.click(function() {
+            //console.log($('form#' + form_id).serializeArray());
+            delete_party($(this).attr("party_id"));
+          });
+          delete_party.append(delete_party_button);
+          form.append(delete_party);
+          //new_col.append(form);
+          //new_row.append(new_col);
+          //col_num++;
+
+          if (col_num == row_length) {
             col_num = 0;
             container.append(new_row);
             var new_row = $('<div class="row justify-content-center"></div>');
           }
         }
-        if(col_num != 0){
+        if (col_num != 0) {
           container.append(new_row);
         }
 
       });
     }
 
-    function add_user_to_party(form_data, party_id, list){
-      console.log(form_data);
-      if(!validate_email(form_data[0]["value"])){
+    // TODO:
+    function delete_party(party_id) {
+      var data = {"party_id":party_id}
+      $.post("<?= $this->url ?>/delete_party", data);
+      location.reload();
+    }
+
+    // TODO
+    function delete_user_from_party(email, party_id, list) {
+      console.log(email, party_id)
+      var data = {"email":email, "party_id":party_id}
+      $.post("<?= $this->url ?>/delete_user_from_party", data, function(response) {
+        document.getElementById("message").innerHTML = "<div class='alert alert-success'>Deleted User</div>";
+        document.getElementById(email + "_" + party_id).remove();
+      });
+    }
+
+    function add_user_to_party(form_data, party_id, list) {
+      console.log(form_data, party_id);
+      if (!validate_email(form_data[0]["value"])) {
         document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Not an Email!</div>";
         return;
       }
-      form_data.push({ name: "party_id", value: party_id });
-      $.post("<?=$this->url?>/add_user_to_party", form_data, function (response) {
+      form_data.push({
+        name: "party_id",
+        value: party_id
+      });
+      $.post("<?= $this->url ?>/add_user_to_party", form_data, function(response) {
         //console.log(response);
         json_response = JSON.parse(response);
         //console.log(json_response);
-        if(!Object.keys(json_response).length){
+        if (!Object.keys(json_response).length) {
           document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Not an Valid User!</div>";
-        }
-        else{
+        } else {
           document.getElementById("message").innerHTML = "<div class='alert alert-success'>Added User</div>";
-          list.append('<li class="list-group-item">' + json_response[0]["username"] + '('+ json_response[0]["email"] + ')'+'</li>')
+          list.append('<li class="list-group-item">' + json_response[0]["username"] + '(' + json_response[0]["email"] + ')' + '</li>');
+          location.reload();
         }
 
       });
     }
 
-    function validate_email(email){ //https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
+    function validate_email(email) { //https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
       return String(email)
         .toLowerCase()
         .match(
@@ -131,10 +185,12 @@
         );
     }
 
-    function set_party(party_id, party_name){
-      $.post("<?=$this->url?>/set_party", { "party_id" : party_id, "party_name" : party_name});
+    function set_party(party_id, party_name) {
+      $.post("<?= $this->url ?>/set_party", {
+        "party_id": party_id,
+        "party_name": party_name
+      });
     }
-
   </script>
 
 </head>
@@ -148,7 +204,7 @@
           <p class="text-muted">Your Parties: <?= $user["email"] ?></p>
         </div>
         <div class="col-4 text-center">
-          <a class="title-text text-dark" href="<?=$this->url?>/parties">Dungeons And Databases</a>
+          <a class="title-text text-dark" href="<?= $this->url ?>/parties">Dungeons And Databases</a>
         </div>
         <div class="col-4 d-flex justify-content-end align-items-center">
           <a class="btn btn-sm btn-outline-secondary" title="Sign out of your account and return to the landing page." href="<?= $this->url ?>/logout">
