@@ -26,18 +26,8 @@
 
     <script type="text/javascript">
         $('button#searchButton').click(function() {
-            form_data = $('form#addCharacter').serializeArray();
-            console.log(form_data);
-            if (form_data[0]["value"].length > 0) {
-                $.post("<?= $this->url ?>/add_character", form_data, function(response) {
-                    console.log(response);
-                    location.reload();
-                });
-            }
-        });
-
-        function search_items() {
-            $.post("<?= $this->url ?>/get_characters", function(response) {
+            form_data = $('form#searchInput').serializeArray();
+            $.post("<?= $this->url ?>/search_items", form_data, function(response) {
                 var json_response = JSON.parse(response);
                 var list = $('#item_list');
                 list.empty();
@@ -46,12 +36,14 @@
                     var char_info = json_response["characters"][c];
                     var row = $('<div></div>');
                     var link = $('<li class="list-group-item"></li>');
-        
+
                     link.text(char_info["character_name"]);
                     list.append(link);
                 }
             });
-        }
+        });
+
+        
     </script>
 </head>
 
@@ -81,12 +73,12 @@
                 <div class="row justify-content-center">
                     <div class="col-5">
                         <div class="input-group">
-                            <div class="form-outline">
-                                <input type="search" id="form1" class="form-control" placeholder="Search Items" />
-                            </div>
-                            <button type="button" class="btn btn-primary">
-                                <i class="fas fa-search"></i>
-                            </button>
+                            <form id="searchInput">
+                                <input type="search" id="form1" name="pattern" class="form-control" placeholder="Search Items" />
+                                <button type="button" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </form>
                         </div>
                         <div class="list-group" id="item_list">
                             <a href="#" class="list-group-item list-group-item-action active">Character 1</a>
