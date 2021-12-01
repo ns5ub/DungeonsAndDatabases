@@ -20,11 +20,112 @@
     <!-- if you choose to use CDN for CSS bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/6dd6be76af.js" crossorigin="anonymous"></script>
-
+    <script crossorigin="anonymous" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <!-- include your CSS by including your CSS last,
     anything you write may override (depending on specificity) the Bootstrap CSS -->
     <link rel="stylesheet" href="styles/main.css" />
 
+    <script type="text/javascript">
+
+        var inventory_items = null;
+        var inventory_id = null;
+
+        $(document).ready(function(){
+          display_items();
+        });
+
+        function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, desc, quantity) {
+            this.name = name;
+            this.party_id = party_id;
+            this.is_magical = is_magical;
+            this.rarity = rarity;
+            this.attunement = attunement;
+            this.equipment_category = equipment_category;
+            this.weight = weight;
+            this.desc = desc;
+            this.quantity = quantity;
+        }
+
+        function display_items() {
+            var found_items = null;
+
+            let table_id = (n) => parseInt(n) + 1;
+
+            $.post("<?=$this->url?>/get_items", function(response) {
+              console.log(response);
+              console.log(JSON.parse(response));
+            });
+
+            var ajax = new XMLHttpRequest();
+            ajax.open("GET", "/ns5ub/dungeonsanddatabases/get_items", true);
+            ajax.responseType = "json";
+            ajax.send(null);
+
+            ajax.addEventListener("load", function() {
+                if (this.status == 200) { // worked
+                    //console.log(this.response);
+                    //found_comics = JSON.parse(this.response);
+                    found_items = this.response;
+
+                    if (found_items != null) {
+                        inventory_items = {};
+                        for (var num in found_items) {
+                            c = found_items[num];
+                            //console.log(c);
+                            var c_i = c.item_id;
+                            inventory_items[c_i] = new Items(i.name, i.party_id, i.is_magical, i.rarity, i.attunement, i.type, i.weight, i.desc);
+                            addToTable(table_id(num), i.name, i.party_id, i.is_magical, i.rarity, i.attunement, i.type, i.weight, i.desc);
+                        }
+                    }
+                }
+            });
+            ajax.addEventListener("error", function() {
+                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>An Error in Retrieving</div>";
+            });
+        }
+
+        function addToTable(name, party_id, is_magical, rarity, attunement, type, weight, desc) {
+            var table = document.getElementById("items_table");
+            var newRow = table.insertRow(table.rows.length);
+            newRow.insertCell(0).textContent = name;
+            newRow.insertCell(1).textContent = party_id;
+            newRow.insertCell(2).textContent = is_magical;
+            newRow.insertCell(3).textContent = rarity;
+            newRow.insertCell(4).textContent = attunement;
+            newRow.insertCell(5).textContent = type;
+            newRow.insertCell(6).textContent = weight;
+            newRow.insertCell(7).textContent = desc;
+            newRow.id = item_id;
+
+            newRow.addEventListener("mouseover", function() {
+                table.clickedRow = this.rowIndex;
+            });
+        }
+
+        function delete_item() {
+            var table = document.getElementById("items_table");
+            var delRow = table.clickedRow;
+            var item_id = table.rows.item(table.clickedRow).id;
+
+            delete table[table.rows.item(table.clickedRow).id];
+            table.deleteRow(delRow);
+
+            var ajax = new XMLHttpRequest();
+            ajax.open("POST", "/ns5ub/dungeonsanddatabases/delete_item", true);
+            var params = "item_id=" + item_id;
+            ajax.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); //https://stackoverflow.com/questions/58217910/xmlhttprequest-not-sending-post-data
+            ajax.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) { // worked
+                    //console.log(ajax.responseText);
+                    document.getElementById("message").innerHTML = "<div class='alert alert-success'>Deleted Successfully</div>";
+                }
+            }
+            ajax.addEventListener("error", function() {
+                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Deletion Error</div>";
+            });
+            ajax.send(params); //https://stackoverflow.com/questions/9713058/send-post-data-using-xmlhttprequest
+        }
+    </script>
 </head>
 
 <body>
