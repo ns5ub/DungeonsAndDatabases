@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<style>
-
-</style>
-
 <html lang="en">
 
 <head>
@@ -15,6 +11,15 @@
     <meta name="author" content="Nikita Saxena (ns5ub), Kevin Li (kl7ck), Zoe Pham (zcp7yd)">
 
     <title>Dungeons And Databases: My Inventories</title>
+
+    <style>
+      .scrolling{
+        max-height: 100px;
+        margin-bottom: 10px;
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
 
     <!-- 3. link bootstrap -->
     <!-- if you choose to use CDN for CSS bootstrap -->
@@ -34,7 +39,7 @@
           display_items();
         });
 
-        function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, desc, quantity) {
+        function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             this.name = name;
             this.party_id = party_id;
             this.is_magical = is_magical;
@@ -42,60 +47,46 @@
             this.attunement = attunement;
             this.equipment_category = equipment_category;
             this.weight = weight;
-            this.desc = desc;
+            this.description = description;
             this.quantity = quantity;
         }
 
         function display_items() {
             var found_items = null;
 
-            let table_id = (n) => parseInt(n) + 1;
-
             $.post("<?=$this->url?>/get_items", function(response) {
-              console.log(response);
-              console.log(JSON.parse(response));
-            });
+              found_items = JSON.parse(response);
+              //console.log(found_items);
+              if (found_items != null) {
+                inventory_items = {};
+                inventory_id = found_items[0].inventory_id;
 
-            var ajax = new XMLHttpRequest();
-            ajax.open("GET", "/ns5ub/dungeonsanddatabases/get_items", true);
-            ajax.responseType = "json";
-            ajax.send(null);
-
-            ajax.addEventListener("load", function() {
-                if (this.status == 200) { // worked
-                    //console.log(this.response);
-                    //found_comics = JSON.parse(this.response);
-                    found_items = this.response;
-
-                    if (found_items != null) {
-                        inventory_items = {};
-                        for (var num in found_items) {
-                            c = found_items[num];
-                            //console.log(c);
-                            var c_i = c.item_id;
-                            inventory_items[c_i] = new Items(i.name, i.party_id, i.is_magical, i.rarity, i.attunement, i.type, i.weight, i.desc);
-                            addToTable(table_id(num), i.name, i.party_id, i.is_magical, i.rarity, i.attunement, i.type, i.weight, i.desc);
-                        }
-                    }
+                for (var num in found_items) {
+                    i = found_items[num];
+                    //console.log(i);
+                    var i_i = i.item_name + "_" + i.party_id;
+                    inventory_items[i_i] = new Item(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
+                    addToTable(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
                 }
-            });
-            ajax.addEventListener("error", function() {
-                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>An Error in Retrieving</div>";
+              }
             });
         }
 
-        function addToTable(name, party_id, is_magical, rarity, attunement, type, weight, desc) {
+        function addToTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             var table = document.getElementById("items_table");
             var newRow = table.insertRow(table.rows.length);
-            newRow.insertCell(0).textContent = name;
-            newRow.insertCell(1).textContent = party_id;
-            newRow.insertCell(2).textContent = is_magical;
-            newRow.insertCell(3).textContent = rarity;
-            newRow.insertCell(4).textContent = attunement;
-            newRow.insertCell(5).textContent = type;
-            newRow.insertCell(6).textContent = weight;
-            newRow.insertCell(7).textContent = desc;
-            newRow.id = item_id;
+            newRow.insertCell(0).textContent = quantity;
+            newRow.insertCell(1).textContent = name;
+            newRow.insertCell(2).textContent = equipment_category;
+            var full_rarity = rarity;
+            if(attunement !== ""){
+              full_rarity = full_rarity + "(" + attunement + ")";
+            }
+            newRow.insertCell(3).textContent = full_rarity;
+            newRow.insertCell(4).textContent = weight;
+            newRow.insertCell(5).innerHTML = '<p class="scrolling">' + description + '</p>';
+            newRow.insertCell(6).innerHTML = '<button class="btn btn-close" onclick="delete_item()"></button>';
+            newRow.id = name + "_" + party_id;
 
             newRow.addEventListener("mouseover", function() {
                 table.clickedRow = this.rowIndex;
@@ -109,21 +100,6 @@
 
             delete table[table.rows.item(table.clickedRow).id];
             table.deleteRow(delRow);
-
-            var ajax = new XMLHttpRequest();
-            ajax.open("POST", "/ns5ub/dungeonsanddatabases/delete_item", true);
-            var params = "item_id=" + item_id;
-            ajax.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); //https://stackoverflow.com/questions/58217910/xmlhttprequest-not-sending-post-data
-            ajax.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) { // worked
-                    //console.log(ajax.responseText);
-                    document.getElementById("message").innerHTML = "<div class='alert alert-success'>Deleted Successfully</div>";
-                }
-            }
-            ajax.addEventListener("error", function() {
-                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Deletion Error</div>";
-            });
-            ajax.send(params); //https://stackoverflow.com/questions/9713058/send-post-data-using-xmlhttprequest
         }
     </script>
 </head>
@@ -156,7 +132,7 @@
             <!-- List of Parties -->
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-6">
+                    <div class="col-11">
                         <div class="mb-3">
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -171,30 +147,40 @@
                             <div>
                                 <h3 class="centered-text">Items</h3>
                             </div>
+
                             <div class="table-responsive">
-                                <table class="table table-sm table-inverse table-striped">
+                                <table class="table table-sm table-inverse table-striped" id="items_table">
                                     <thead class="table-header">
                                         <tr>
-                                            <th>Item Name / #</th>
-                                            <th>Category</th>
-                                            <th>Description</th>
+                                          <th>Quantity</th>
+                                          <th>Name</th>
+                                          <th>Type</th>
+                                          <th>Rarity/Attunement</th>
+                                          <th>Weight</th>
+                                          <th>Description</th>
+                                          <th>Delete</th>
                                         </tr>
                                     </thead>
                                 </table>
                             </div>
+
                         </div>
                     </div>
-                    <div class="col-4">
-                        <form class="card p-3 bg-light">
-                            <div class="mb-3">
-                                <input type="character" class="form-control" id="search" placeholder="Search Items">
-                            </div>
-                            <div class="col-auto">
-                                <button type="search" class="btn btn-primary ">Search</button>
-                            </div>
-                        </form>
-                    </div>
+                </div>
 
+                <div>
+                  <div class="row justify-content-center">
+                    <div class="col-11">
+                      <form class="card p-3 bg-light">
+                          <div class="mb-3">
+                              <input type="character" class="form-control" id="search" placeholder="Search Items">
+                          </div>
+                          <div class="col-auto">
+                              <button type="search" class="btn btn-primary ">Search</button>
+                          </div>
+                      </form>
+                    </div>
+                  </div>
                 </div>
             </div>
 
