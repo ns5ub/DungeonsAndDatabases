@@ -1,21 +1,12 @@
 <!DOCTYPE html>
 <style>
-  .list-group-1 {
-    max-height: 100px;
-    margin-bottom: 10px;
-    overflow: scroll;
-    -webkit-overflow-scrolling: touch;
-  }
+.card{
+    margin-top: 10px;
+}
+
 </style>
 
 <html lang="en">
-
-<script type="text/javascript">
-  function addUser(){
-    event.preventDefault();
-    
-  }
-</script>
 
 <head>
 
@@ -26,7 +17,7 @@
 
   <meta name="author" content="Nikita Saxena (ns5ub), Kevin Li (kl7ck), Zoe Pham (zcp7yd)">
 
-  <title>Dungeons And Databases: My Parties</title>
+  <title>Dungeons And Databases: Characters in Party</title>
 
   <!-- 3. link bootstrap -->
   <!-- if you choose to use CDN for CSS bootstrap -->
@@ -44,7 +35,7 @@
     <header class="title py-3">
       <div class="row flex-nowrap justify-content-between align-items-center">
         <div class="col-4 pt-1">
-          <p class="text-muted">Your Parties: <?= $user["email"] ?></p>
+          <p class="text-muted">Characters in Party: <?= $user["email"] ?></p>
         </div>
         <div class="col-4 text-center">
           <p class="title-text text-dark" href="#">Dungeons And Databases</p>
@@ -59,49 +50,27 @@
   </div>
   <div>
     <main class="container">
-      <h3 class="text-center">My Parties</h3>
+      <h3 class="text-center">Characters in Party</h3>
 
-      <!-- List of Parties -->
+      <!-- List of Characters -->
       <div class="container">
         <div class="row justify-content-center">
-          <div class="col-4">
+          <div class="col-5">
+          <div class="list-group">
+                      <a href="#" class="list-group-item list-group-item-action active">Character 1</a>
+                      <a href="#" class="list-group-item list-group-item-action">Character 2</a>
+                      <a href="#" class="list-group-item list-group-item-action">Character 3</a>
+                  </div>
             <form class="card p-3 bg-light">
               <div class="mb-3">
-                <legend>Party 1</legend>
-                <div class="list-group-1">
-                  <ul class="list-group">
-                    <li class="list-group-item">User Name 1</li>
-                    <li class="list-group-item">User Name 2</li>
-                    <li class="list-group-item">User Name 3</li>
-                  </ul>
-                  <!-- TODO: Function to add user -->
-                </div>
-                <input type="email-address" class="form-control" id="addUser" placeholder="Email Address">
+                <input type="character" class="form-control" id="addCharacter" placeholder="Character Name">
               </div>
               <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Add User</button>
+                <button type="submit" class="btn btn-primary ">Add Character</button>
               </div>
             </form>
           </div>
-          <div class="col-4">
-            <form class="card p-3 bg-light" onsubmit="addUser()">
-              <div class="mb-3">
-                <legend>Party 2</legend>
-                <div class="list-group-1">
-                  <ul class="list-group">
-                    <li class="list-group-item">User Name 1</li>
-                    <li class="list-group-item">User Name 2</li>
-                    <li class="list-group-item">User Name 3</li>
-                  </ul>
-                </div>
-                <input type="email-address" class="form-control" id="addUser" placeholder="Email Address">
-
-              </div>
-              <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Add User</button>
-              </div>
-            </form>
-          </div>
+          
         </div>
 
       </div>
