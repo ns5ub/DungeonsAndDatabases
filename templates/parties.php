@@ -69,20 +69,23 @@
             set_party($(this).attr("party_id"), $(this).attr("party_name"));
           });
           info.append(link);
-          
-          // Delete User Button
-          var delete_user_button = $('<button type="reset" class="btn btn-danger"></button>');
-          delete_user_button.text("Delete User");
-          delete_user_button.click(function() {
-            //console.log($('form#' + form_id).serializeArray());
-            delete_user_from_party($('form#' + form_id).serializeArray(), party_id, list);
-          });
-          
+
           // List of Users
           var list = $('<div class="list-group-1"><ul class="list-group"></ul></div>');
           for (var u in party_info["users"]) {
             user_info = party_info["users"][u];
-            list.append('<li class="list-group-item">' + user_info["username"] + '(' + user_info["email"] + ')' + '<button type="reset" class="btn-sm btn-outline-danger" onClick="delete_user_from_party">Delete User</button>' +'</li>')
+            var list_element = $('<li class="list-group-item" style="display: block">' + + '<button type="reset" class="btn-sm btn-outline-danger" onClick="delete_user_from_party">Delete User</button>' +'</li>');
+            list_element.text( user_info["username"] + '(' + user_info["email"] + ')');
+            list_element.attr("id", user_info["email"] + "_" + party_id);
+            // Delete User Button
+            var delete_user_button = $('<button type="button" class="btn btn-close float-right"></button>');
+            delete_user_button.attr("email", user_info["email"]);
+            delete_user_button.attr("party_id", party_id);
+            delete_user_button.click(function() {
+              delete_user_from_party($(this).attr("email"), $(this).attr("party_id"), list);
+            });
+            list_element.append(delete_user_button);
+            list.append(list_element);
           }
           info.append(list);
           var email_input = $('<input type="email-address" class="form-control" name="email" placeholder="Email Address">');
@@ -92,9 +95,11 @@
           var submission = $('<div class="col-auto"> </div');
           var button = $('<button type="reset" class="btn btn-primary"></button>');
           button.text("Add User");
+          button.attr("party_id", party_id);
+          button.attr("form_id", form_id);
           button.click(function() {
             //console.log($('form#' + form_id).serializeArray());
-            add_user_to_party($('form#' + form_id).serializeArray(), party_id, list);
+            add_user_to_party($('form#' + $(this).attr("form_id")).serializeArray(), $(this).attr("party_id"), list);
           });
           submission.append(button);
           form.append(submission);
@@ -106,9 +111,10 @@
           var delete_party = $('<div class="col-auto"> </div');
           var delete_party_button = $('<button type="reset" class="btn btn-danger" style="text-right"></button>');
           delete_party_button.text("Delete Party");
+          delete_party_button.attr("party_id", party_id);
           delete_party_button.click(function() {
             //console.log($('form#' + form_id).serializeArray());
-            delete_party($('form#' + form_id).serializeArray(), party_id, list);
+            delete_party($(this).attr("party_id"));
           });
           delete_party.append(delete_party_button);
           form.append(delete_party);
@@ -130,31 +136,24 @@
     }
 
     // TODO:
-    function delete_party(form_data, party_id, list) {
-
+    function delete_party(party_id) {
+      var data = {"party_id":party_id}
+      $.post("<?= $this->url ?>/delete_party", data);
+      location.reload();
     }
+
     // TODO
-    function delete_user_from_party(form_data, party_id, list) {
-      form_data.push({
-        name: "party_id",
-        value: party_id
-      });
-      $.post("<?= $this->url ?>/delete_user_from_party", form_data, function(response) {
-        //console.log(response);
-        json_response = JSON.parse(response);
-        //console.log(json_response);
+    function delete_user_from_party(email, party_id, list) {
+      console.log(email, party_id)
+      var data = {"email":email, "party_id":party_id}
+      $.post("<?= $this->url ?>/delete_user_from_party", data, function(response) {
         document.getElementById("message").innerHTML = "<div class='alert alert-success'>Deleted User</div>";
-        return;
+        document.getElementById(email + "_" + party_id).remove();
       });
     }
-
-
-
-
-
 
     function add_user_to_party(form_data, party_id, list) {
-      console.log(form_data);
+      console.log(form_data, party_id);
       if (!validate_email(form_data[0]["value"])) {
         document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Not an Email!</div>";
         return;
@@ -171,7 +170,8 @@
           document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Not an Valid User!</div>";
         } else {
           document.getElementById("message").innerHTML = "<div class='alert alert-success'>Added User</div>";
-          list.append('<li class="list-group-item">' + json_response[0]["username"] + '(' + json_response[0]["email"] + ')' + '</li>')
+          list.append('<li class="list-group-item">' + json_response[0]["username"] + '(' + json_response[0]["email"] + ')' + '</li>');
+          location.reload();
         }
 
       });

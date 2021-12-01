@@ -28,6 +28,12 @@ class DungeonsAndDatabasesController {
           case "add_user_to_party":
             $this->add_user_to_party();
             break;
+          case "delete_user_from_party":
+            $this->delete_user_from_party();
+            break;
+          case "delete_party":
+            $this->delete_party();
+            break;
           case "set_party":
             $this->set_party();
             break;
@@ -36,6 +42,9 @@ class DungeonsAndDatabasesController {
             break;
           case "add_character":
             $this->add_character();
+            break;
+          case "delete_char_from_party":
+            $this->delete_char_from_party();
             break;
           case "set_inventory":
             $this->set_inventory();
@@ -170,6 +179,15 @@ class DungeonsAndDatabasesController {
       $_SESSION["party_name"] = $_POST["party_name"];
     }
 
+    public function delete_user_from_party(){
+      $character_info = $this->db->query("CALL remove_user_from_party(?, ?)", "si", $_POST["email"], $_POST["party_id"]);
+    }
+
+    public function delete_party(){
+      $character_info = $this->db->query("CALL delete_party(?)", "i", $_POST["party_id"]);
+    }
+
+    //CHARACTERS PAGE
     public function get_characters(){
       $character_info = $this->db->query("CALL characters_from_party_id(?)", "i", $_SESSION["party_id"]);
       $data = array();
@@ -185,6 +203,10 @@ class DungeonsAndDatabasesController {
       $character_info = $this->db->query("CALL create_character(?, ?, ?)", "sii", $_POST["character_name"], $_POST["maximum_capacity"], $_SESSION["party_id"]);
     }
 
+    public function delete_char_from_party(){
+      $this->db->query("CALL remove_character_from_party(?, ?)", "ii", $_POST["character_id"], $_POST["party_id"]);
+    }
+    
     public function set_inventory(){
       $_SESSION["inventory_id"]  = $_POST["inventory_id"];
     }
