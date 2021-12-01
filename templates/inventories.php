@@ -20,7 +20,7 @@
     <!-- if you choose to use CDN for CSS bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/6dd6be76af.js" crossorigin="anonymous"></script>
-
+    <script crossorigin="anonymous" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <!-- include your CSS by including your CSS last,
     anything you write may override (depending on specificity) the Bootstrap CSS -->
     <link rel="stylesheet" href="styles/main.css" />
@@ -28,22 +28,33 @@
     <script type="text/javascript">
 
         var inventory_items = null;
+        var inventory_id = null;
 
-        function Items(name, party_id, is_magical, rarity, attunement, type, weight, desc) {
+        $(document).ready(function(){
+          display_items();
+        });
+
+        function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, desc, quantity) {
             this.name = name;
             this.party_id = party_id;
             this.is_magical = is_magical;
             this.rarity = rarity;
             this.attunement = attunement;
-            this.type = type;
+            this.equipment_category = equipment_category;
             this.weight = weight;
             this.desc = desc;
+            this.quantity = quantity;
         }
 
-        function load_items() {
+        function display_items() {
             var found_items = null;
 
             let table_id = (n) => parseInt(n) + 1;
+
+            $.post("<?=$this->url?>/get_items", function(response) {
+              console.log(response);
+              console.log(JSON.parse(response));
+            });
 
             var ajax = new XMLHttpRequest();
             ajax.open("GET", "/ns5ub/dungeonsanddatabases/get_items", true);

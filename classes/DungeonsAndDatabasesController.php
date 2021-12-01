@@ -40,6 +40,9 @@ class DungeonsAndDatabasesController {
           case "set_inventory":
             $this->set_inventory();
             break;
+          case "get_items":
+            $this->get_items();
+            break;
           case "logout":
             $this->destroySession();
           case "login":
@@ -187,5 +190,10 @@ class DungeonsAndDatabasesController {
 
     public function set_inventory(){
       $_SESSION["inventory_id"]  = $_POST["inventory_id"];
+    }
+
+    public function get_items(){
+      $items = $this->db->query("CALL items_from_inventory(?)", "i", $_SESSION["inventory_id"]);
+      echo json_encode($items);
     }
 }
