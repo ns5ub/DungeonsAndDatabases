@@ -40,8 +40,8 @@
       $.post("<?=$this->url?>/get_user_parties", function(response) {
 
         var user_parties = JSON.parse(response);
-        console.log("hi");
-        console.log(user_parties);
+        //console.log("hi");
+        //console.log(user_parties);
         var container = $('#party_list');
         container.empty();
 
@@ -57,8 +57,12 @@
 
           var info = $('<div class="mb-3"></div');
           var link = $('<legend><a href="<?=$this->url?>/characters">' + party_info["party_name"] + '</a></legend>');
+          link.attr("party_id", party_id);
+          link.attr("party_name", party_info["party_name"]);
+          //
           link.click(function(){
-            set_party(party_id, party_info["party_name"]);
+            console.log($(this).attr("party_id"), $(this).attr("party_name"));
+            set_party($(this).attr("party_id"), $(this).attr("party_name"));
           });
           info.append(link);
 
@@ -105,9 +109,9 @@
       }
       form_data.push({ name: "party_id", value: party_id });
       $.post("<?=$this->url?>/add_user_to_party", form_data, function (response) {
-        console.log(response);
+        //console.log(response);
         json_response = JSON.parse(response);
-        console.log(json_response);
+        //console.log(json_response);
         if(!Object.keys(json_response).length){
           document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Not an Valid User!</div>";
         }
@@ -144,7 +148,7 @@
           <p class="text-muted">Your Parties: <?= $user["email"] ?></p>
         </div>
         <div class="col-4 text-center">
-          <p class="title-text text-dark" href="#">Dungeons And Databases</p>
+          <a class="title-text text-dark" href="<?=$this->url?>/parties">Dungeons And Databases</a>
         </div>
         <div class="col-4 d-flex justify-content-end align-items-center">
           <a class="btn btn-sm btn-outline-secondary" title="Sign out of your account and return to the landing page." href="<?= $this->url ?>/logout">

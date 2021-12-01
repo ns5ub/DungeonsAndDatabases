@@ -19,6 +19,9 @@ class DungeonsAndDatabasesController {
           case "characters":
             $this->characters();
             break;
+          case "inventories":
+            $this->inventories();
+            break;
           case "get_user_parties":
             $this->get_user_parties();
             break;
@@ -27,6 +30,15 @@ class DungeonsAndDatabasesController {
             break;
           case "set_party":
             $this->set_party();
+            break;
+          case "get_characters":
+            $this->get_characters();
+            break;
+          case "add_character":
+            $this->add_character();
+            break;
+          case "set_inventory":
+            $this->set_inventory();
             break;
           case "logout":
             $this->destroySession();
@@ -108,6 +120,22 @@ class DungeonsAndDatabasesController {
         include("templates/characters.php");
     }
 
+    public function inventories() {
+        // set user information for the page
+        $user = [
+            "email" => $_SESSION["email"],
+            "username" => $_SESSION["username"]
+        ];
+
+        $page_info = [
+            "party_id" => $_SESSION["party_id"],
+            "party_name" => $_SESSION["party_name"],
+            "inventory_id" => $_SESSION["inventory_id"]
+        ];
+
+        include("templates/inventories.php");
+    }
+
     public function get_user_parties(){
       $party_ids = $this->db->query("CALL party_ids_from_email(?)", "s", $_SESSION["email"]);
 
@@ -138,7 +166,26 @@ class DungeonsAndDatabasesController {
     }
 
     public function set_party(){
-      $_SESSION["party_id"] = $_POST["party_id"];
+      $_SESSION["party_id"]  = $_POST["party_id"];
       $_SESSION["party_name"] = $_POST["party_name"];
+    }
+
+    public function get_characters(){
+      $character_info = $this->db->query("CALL characters_from_party_id(?)", "i", $_SESSION["party_id"]);
+      $data = array();
+      $data["party_id"] = $_SESSION["party_id"];
+      $data["characters"] = $character_info;
+      echo json_encode($data);
+    }
+
+    public function add_character(){
+      echo $_POST["character_name"];
+      echo $_POST["maximum_capacity"];
+      echo $_SESSION["party_id"];
+      $character_info = $this->db->query("CALL create_character(?, ?, ?)", "sii", $_POST["character_name"], $_POST["maximum_capacity"], $_SESSION["party_id"]);
+    }
+
+    public function set_inventory(){
+      $_SESSION["inventory_id"]  = $_POST["inventory_id"];
     }
 }

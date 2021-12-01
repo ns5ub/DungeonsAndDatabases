@@ -24,9 +24,9 @@
     <!-- include your CSS by including your CSS last,
     anything you write may override (depending on specificity) the Bootstrap CSS -->
     <link rel="stylesheet" href="styles/main.css" />
-    
+
     <script type="text/javascript">
-        
+
         var inventory_items = null;
 
         function Items(name, party_id, is_magical, rarity, attunement, type, weight, desc) {
@@ -128,7 +128,7 @@
                     </p>
                 </div>
                 <div class="col-4 text-center">
-                    <p class="title-text text-dark" href="#">Dungeons And Databases</p>
+                    <a class="title-text text-dark" href="<?=$this->url?>/parties">Dungeons And Databases</a>
                 </div>
                 <div class="col-4 d-flex justify-content-end align-items-center">
                     <a class="btn btn-sm btn-outline-secondary" title="Sign out of your account and return to the landing page." href="<?= $this->url ?>/logout">
