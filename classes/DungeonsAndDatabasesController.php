@@ -78,7 +78,7 @@ class DungeonsAndDatabasesController
           default:
             $this->login();
             break;
-  }
+  }}
 
   private function destroySession()
   {
@@ -209,12 +209,12 @@ class DungeonsAndDatabasesController
       echo json_encode(array());
       return;
     }
-    public function add_inventory_to_inventory(){
-      $this->db->query("CALL add_inventory_to_inventory(?, ?, ?, ?)", "siii", $_POST["inventory_name"], $_SESSION["inventory_id"], $_POST["maximum_capacity"], $_POST["fixed_current_weight"]);
-    }
     $this->db->query("CALL give_access(?, ?)", "si", $_POST["email"], $_POST["party_id"]);
     echo json_encode($data);
   }
+    public function add_inventory_to_inventory(){
+      $this->db->query("CALL add_inventory_to_inventory(?, ?, ?, ?)", "siii", $_POST["inventory_name"], $_SESSION["inventory_id"], $_POST["maximum_capacity"], $_POST["fixed_current_weight"]);
+    }
 
   public function set_party()
   {
