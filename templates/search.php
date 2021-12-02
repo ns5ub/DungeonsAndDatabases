@@ -31,17 +31,32 @@
                 var json_response = JSON.parse(response);
                 var list = $('#item_list');
                 list.empty();
-
-                for (c in json_response["characters"]) {
-                    var char_info = json_response["characters"][c];
-                    var row = $('<div></div>');
-                    var link = $('<li class="list-group-item"></li>');
-
-                    link.text(char_info["character_name"]);
-                    list.append(link);
+                for (i in json_response["items"]) {
+                    var isi = json_response["items"][i];
+                    addToSearchTable(isi.item_name, isi.party_id, isi.is_magical, isi.rarity, isi.attunement, isi.equipment_category, isi.weight, isi.description);
                 }
             });
         });
+
+        function addToSearchTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description) {
+            var table = document.getElementById("items_search_table");
+            var newRow = table.insertRow(table.rows.length);
+            newRow.insertCell(0).textContent = name;
+            newRow.insertCell(1).textContent = equipment_category;
+            var full_rarity = rarity;
+            if(attunement !== ""){
+              full_rarity = full_rarity + "(" + attunement + ")";
+            }
+            newRow.insertCell(2).textContent = full_rarity;
+            newRow.insertCell(3).textContent = weight;
+            newRow.insertCell(4).innerHTML = '<p class="scrolling">' + description + '</p>';
+            newRow.insertCell(5).innerHTML = '<button class="btn btn-close" onclick="delete_item()"></button>';
+            newRow.id = name + "_" + party_id;
+
+            newRow.addEventListener("mouseover", function() {
+                table.clickedRow = this.rowIndex;
+            });
+        }
 
         
     </script>
@@ -80,11 +95,20 @@
                                 </button>
                             </form>
                         </div>
-                        <div class="list-group" id="item_list">
-                            <a href="#" class="list-group-item list-group-item-action active">Character 1</a>
-                            <a href="#" class="list-group-item list-group-item-action">Character 2</a>
-                            <a href="#" class="list-group-item list-group-item-action">Character 3</a>
-                        </div>
+                        <div class="table-responsive">
+                                <table class="table table-sm table-inverse table-striped" id="items_search_table">
+                                    <thead class="table-header">
+                                        <tr>
+                                          <th>Name</th>
+                                          <th>Type</th>
+                                          <th>Rarity/Attunement</th>
+                                          <th>Weight</th>
+                                          <th>Description</th>
+                                          <th>Delete</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
                     </div>
                 </div>
             </div>
