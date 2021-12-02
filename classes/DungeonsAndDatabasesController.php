@@ -67,8 +67,14 @@ class DungeonsAndDatabasesController
       case "add_inventory_to_inventory":
         $this->add_inventory_to_inventory();
         break;
+      case "change_item_quantity":
+        $this->change_item_quantity();
+        break;
       case "search_items":
         $this->search_items();
+        break;
+      case "add_item":
+        $this->add_item();
         break;
       case "search":
         $this->search();
@@ -230,6 +236,11 @@ class DungeonsAndDatabasesController
     ];
     include("templates/search.php");
   }
+
+  public function add_item(){
+    $item_info = $this -> db->query("CALL add_to_bag(?, ?, ?, ?)", "siii", $_POST["itemName"], 1, $_SESSION["inventory_id"], $_POST["itemQuantity"]);
+  }
+
   //CHARACTERS PAGE
   public function get_characters()
   {
@@ -284,6 +295,10 @@ class DungeonsAndDatabasesController
   public function add_inventory_to_inventory()
   {
     $this->db->query("CALL add_inventory_to_inventory(?, ?, ?, ?)", "siii", $_POST["inventory_name"], $_SESSION["inventory_id"], $_POST["maximum_capacity"], $_POST["fixed_current_weight"]);
+  }
+
+  public function change_item_quantity(){
+    $this->db->query("CALL update_item_quantity_from_bag(?, ?, ?, ?)", "siii", $_POST["name"], $_POST["party_id"], $_SESSION["inventory_id"], $_POST["quantity"]);
   }
   //Item Search
   public function search_items()

@@ -30,15 +30,22 @@
       		$('button#searchButton').click(function(){
 	      		postSearchItems();
     		});
+
+            $('button#addItemButton').click(function(){
+                form_data = $('form#addItem').serializeArray();
+                $.post("<?= $this->url ?>/add_item", form_data);
+                window.location.href = "<?= $this->url ?>/inventories";
+                return false;
+    		});
 	});
 
 	function postSearchItems() {
-	    console.log("we got in");	
+	    console.log("we got in");
 	    form_data = $('form#searchInput').serializeArray();
 	    console.log("we did the serial");
             $.post("<?= $this->url ?>/search_items", form_data, function(response) {
                 var json_response = JSON.parse(response);
-                
+
                 for (i in json_response["items"]) {
 		    var isi = json_response["items"][i];
 		    console.log(isi);
@@ -97,10 +104,10 @@
                     <div class = "col">
                         <div class = "col-4">
                         <form id="addItem" onkeypress="return event.keyCode != 13">
-                                <input type="text" id="itemName" name="pattern" class="form-control" placeholder="Item Name" />
-                                <input type="text" id="itemQuantity" name="pattern" class="form-control" placeholder="Item Quantity" />
-                                <button type="reset" id="addItem" class="btn btn-primary">Add Item</button>
-                            </form> 
+                                <input type="text" id="itemName" name="itemName" class="form-control" placeholder="Item Name" />
+                                <input type="text" id="itemQuantity" name="itemQuantity" class="form-control" placeholder="Item Quantity" />
+                                <button type="reset" id="addItemButton" class="btn btn-primary">Add Item</button>
+                            </form>
                         </div>
 
                         <div class="input-group mb-6">

@@ -138,8 +138,9 @@
             var newRow = table.insertRow(table.rows.length);
             //newRow.insertCell(0).textContent = quantity;
             var q_id = "quantity_" + name + "_" + party_id;
-            newRow.insertCell(0).innerHTML = '<input type="number" style="width: 50px" id="' + q_id + '" value="' + quantity + '" step="1">';
-
+            var temp = '<input type="number" style="width: 75px" id="' + q_id + '" value="' + quantity + '" step="1">';
+            temp = temp + '<button class="btn" onclick="quantity_change()"><i class="fas fa-check"></i></button>';
+            newRow.insertCell(0).innerHTML = temp;
             newRow.insertCell(1).textContent = name;
             newRow.insertCell(2).textContent = equipment_category;
             var full_rarity = rarity;
@@ -167,6 +168,15 @@
             table.deleteRow(delRow);
             delete inventory_items[item_id];
             //console.log(inventory_items);
+        }
+
+        function quantity_change(){
+          var table = document.getElementById("items_table");
+          var delRow = table.clickedRow;
+          var item_id = table.rows.item(table.clickedRow).id;
+          var quanity_id = "quantity_" + item_id;
+          var quantity = document.getElementById(quanity_id).value;
+          $.post("<?=$this->url?>/change_item_quantity", {"quantity": quantity, "name" : inventory_items[item_id].name, "party_id": inventory_items[item_id].party_id});
         }
 
     </script>
