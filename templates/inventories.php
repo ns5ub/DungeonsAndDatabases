@@ -37,6 +37,8 @@
 
         $(document).ready(function(){
           display_items();
+          display_subinventories();
+          display_inventory_information();
         });
 
         function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
@@ -51,13 +53,50 @@
             this.quantity = quantity;
         }
 
+        function display_subinventories(){
+          var found_inventories = null;
+          $.post("<?=$this->url?>/get_inventories_in_inventory", function(response) {
+            console.log(response);
+            found_inventories = JSON.parse(response);
+
+
+            var subinventories_table = document.getElementById("subinventories_table");
+            if (found_inventories != null  && found_inventories.length != 0) {
+              for (var num in found_inventories) {
+                  inventory = found_inventories[num];
+                  var newRow = subinventories_table.insertRow(subinventories_table.rows.length);
+                  newRow.id = inventory.inventory_id_inner_bag;
+                  newRow.insertCell(0).textContent = inventory.inventory_name;
+
+                  newRow.addEventListener("mouseover", function() {
+                    subinventories_table.clickedRow = this.rowIndex;
+                  });
+
+                  newRow.addEventListener("click", function() {
+                    var subinventories_table = document.getElementById("subinventories_table");
+                    var inventory_id = subinventories_table.rows.item(subinventories_table.clickedRow).id;
+                    $.post("<?=$this->url?>/set_inventory", { "inventory_id" : inventory_id});
+                    location.reload();
+                  });
+              }
+            }
+          });
+        }
+
+        function display_inventory_information(){
+          $.post("<?=$this->url?>/get_inventory_info", function(response) {
+            console.log(response);
+            console.log(JSON.parse(response));
+          });
+        }
+
         function display_items() {
             var found_items = null;
 
             $.post("<?=$this->url?>/get_items", function(response) {
               found_items = JSON.parse(response);
               //console.log(found_items);
-              if (found_items != null) {
+              if (found_items != null && found_items.length != 0) {
                 inventory_items = {};
                 inventory_id = found_items[0].inventory_id;
 
@@ -66,13 +105,16 @@
                     //console.log(i);
                     var i_i = i.item_name + "_" + i.party_id;
                     inventory_items[i_i] = new Item(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
-                    addToTable(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
+                    addToItemTable(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
                 }
+
+                console.log(inventory_items);
+                console.log(inventory_id);
               }
             });
         }
 
-        function addToTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
+        function addToItemTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             var table = document.getElementById("items_table");
             var newRow = table.insertRow(table.rows.length);
             newRow.insertCell(0).textContent = quantity;
@@ -98,9 +140,13 @@
             var delRow = table.clickedRow;
             var item_id = table.rows.item(table.clickedRow).id;
 
-            delete table[table.rows.item(table.clickedRow).id];
+            //delete table[table.rows.item(table.clickedRow).id];
+            $.post("<?=$this->url?>/delete_item_from_inventory", { "name" : inventory_items[item_id].name, "party_id": inventory_items[item_id].party_id});
             table.deleteRow(delRow);
+            delete inventory_items[item_id];
+            //console.log(inventory_items);
         }
+
     </script>
 </head>
 
@@ -127,23 +173,49 @@
     </div>
     <div>
         <main class="container">
-            <h3 class="text-center">My Inventories</h3>
+            <h3 class="text-center" id="inventory_name">Hi</h3>
 
-            <!-- List of Parties -->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    Inventory Selection
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <button class="dropdown-item" type="button">Inventory 1</button>
+                    <button class="dropdown-item" type="button">Inventory 2</button>
+                    <button class="dropdown-item" type="button">Inventory 3</button>
+                </div>
+            </div>
+
+            <!--SUBINVENTORY TABLE-->
+
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-11">
                         <div class="mb-3">
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Inventory Selection
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                    <button class="dropdown-item" type="button">Inventory 1</button>
-                                    <button class="dropdown-item" type="button">Inventory 2</button>
-                                    <button class="dropdown-item" type="button">Inventory 3</button>
-                                </div>
+                            <div>
+                                <h3 class="centered-text">Subinventories:</h3>
                             </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-inverse table-striped" id="subinventories_table">
+                                    <thead class="table-header">
+                                        <tr>
+                                          <th>Inventory Name</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITEM LISTING-->
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-11">
+                        <div class="mb-3">
                             <div>
                                 <h3 class="centered-text">Items</h3>
                             </div>

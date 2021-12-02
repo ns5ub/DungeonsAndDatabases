@@ -52,6 +52,15 @@ class DungeonsAndDatabasesController {
           case "get_items":
             $this->get_items();
             break;
+          case "delete_item_from_inventory":
+            $this->delete_item_from_inventory();
+            break;
+          case "get_inventories_in_inventory":
+            $this->get_inventories_in_inventory();
+            break;
+          case "get_inventory_info":
+            $this->get_inventory_info();
+            break;
           case "logout":
             $this->destroySession();
           case "login":
@@ -209,7 +218,7 @@ class DungeonsAndDatabasesController {
     public function delete_char_from_party(){
       $this->db->query("CALL remove_character_from_party(?, ?)", "ii", $_POST["character_id"], $_POST["party_id"]);
     }
-    
+
     public function set_inventory(){
       $_SESSION["inventory_id"]  = $_POST["inventory_id"];
     }
@@ -217,5 +226,19 @@ class DungeonsAndDatabasesController {
     public function get_items(){
       $items = $this->db->query("CALL items_from_inventory(?)", "i", $_SESSION["inventory_id"]);
       echo json_encode($items);
+    }
+
+    public function delete_item_from_inventory(){
+      $this->db->query("CALL remove_item_from_inventory(?, ?, ?)", "sii", $_POST["name"], $_POST["party_id"], $_SESSION["inventory_id"]);
+    }
+
+    public function get_inventories_in_inventory(){
+      $inventories = $this->db->query("CALL inventories_from_inventory(?)", "i", $_SESSION["inventory_id"]);
+      echo json_encode($inventories);
+    }
+
+    public function get_inventory_info(){
+      $inventories = $this->db->query("CALL get_inventory(?)", "i", $_SESSION["inventory_id"]);
+      echo json_encode($inventories[0]);
     }
 }
