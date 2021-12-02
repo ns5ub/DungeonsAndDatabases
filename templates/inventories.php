@@ -138,7 +138,7 @@
             var newRow = table.insertRow(table.rows.length);
             //newRow.insertCell(0).textContent = quantity;
             var q_id = "quantity_" + name + "_" + party_id;
-            var temp = '<input type="number" style="width: 30px" id="' + q_id + '" value="' + quantity + '" step="1">';
+            var temp = '<input type="number" style="width: 75px" id="' + q_id + '" value="' + quantity + '" step="1">';
             temp = temp + '<button class="btn" onclick="quantity_change()"><i class="fas fa-check"></i></button>';
             newRow.insertCell(0).innerHTML = temp;
             newRow.insertCell(1).textContent = name;
