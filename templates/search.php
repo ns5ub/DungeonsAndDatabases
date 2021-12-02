@@ -24,18 +24,24 @@
     <script src="https://kit.fontawesome.com/6dd6be76af.js" crossorigin="anonymous"></script>
     <script crossorigin="anonymous" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
-    <script type="text/javascript">
+	<script type="text/javascript">
+	$(document).ready(function(){
         $('button#searchButton').click(function() {
-            form_data = $('form#searchInput').serializeArray();
+	    console.log("we got in");	
+	    form_data = $('form#searchInput').serializeArray();
+	    console.log("we did the serial");
             $.post("<?= $this->url ?>/search_items", form_data, function(response) {
                 var json_response = JSON.parse(response);
                 
                 for (i in json_response["items"]) {
-                    var isi = json_response["items"][i];
+		    var isi = json_response["items"][i];
+		    console.log(isi);
                     addToSearchTable(isi.item_name, isi.party_id, isi.is_magical, isi.rarity, isi.attunement, isi.equipment_category, isi.weight, isi.description);
                 }
-            });
-        });
+	    });
+	    console.log("posted");
+	});
+	});
 
         function addToSearchTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description) {
             var table = document.getElementById("items_search_table");
@@ -87,7 +93,7 @@
                         <div class="input-group mb-6">
                             <form id="searchInput">
                                 <input type="search" id="form1" name="pattern" class="form-control" placeholder="Search Items" />
-                                <button type="button" class="btn btn-primary">
+                                <button type="submit" id="searchButton" class="btn btn-primary">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </form>
