@@ -44,8 +44,8 @@
             newRow.insertCell(0).textContent = name;
             newRow.insertCell(1).textContent = equipment_category;
             var full_rarity = rarity;
-            if(attunement !== ""){
-              full_rarity = full_rarity + "(" + attunement + ")";
+            if (attunement !== "") {
+                full_rarity = full_rarity + "(" + attunement + ")";
             }
             newRow.insertCell(2).textContent = full_rarity;
             newRow.insertCell(3).textContent = weight;
@@ -57,8 +57,6 @@
                 table.clickedRow = this.rowIndex;
             });
         }
-
-        
     </script>
 </head>
 
@@ -86,8 +84,8 @@
             <h3 class="text-center">Items</h3>
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-5">
-                        <div class="input-group">
+                    <div class="col">
+                        <div class="input-group mb-6">
                             <form id="searchInput">
                                 <input type="search" id="form1" name="pattern" class="form-control" placeholder="Search Items" />
                                 <button type="button" class="btn btn-primary">
@@ -95,20 +93,21 @@
                                 </button>
                             </form>
                         </div>
-                        <div class="table-responsive">
-                                <table class="table table-sm table-inverse table-striped" id="items_search_table">
-                                    <thead class="table-header">
-                                        <tr>
-                                          <th>Name</th>
-                                          <th>Type</th>
-                                          <th>Rarity/Attunement</th>
-                                          <th>Weight</th>
-                                          <th>Description</th>
-                                          <th>Delete</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+                        <div class="table-responsive-lg">
+                            <table class="table table-inverse table-striped" id="items_search_table">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Rarity/Attunement</th>
+                                        <th>Weight</th>
+                                        <th>Description</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>
