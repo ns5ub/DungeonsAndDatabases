@@ -1,14 +1,16 @@
 <?php
 
-class DungeonsAndDatabasesController {
+class DungeonsAndDatabasesController
+{
 
-    private $db;
-    //private $url = "/ns5ub/DungeonsAndDatabases";
-    private $url = "/DungeonsAndDatabases";
+  private $db;
+  //private $url = "/ns5ub/DungeonsAndDatabases";
+  private $url = "/DungeonsAndDatabases";
 
-    public function __construct() {
-        $this->db = new Database();
-    }
+  public function __construct()
+  {
+    $this->db = new Database();
+  }
 
     public function run($parts) {
         $command = $parts[0];
@@ -51,6 +53,24 @@ class DungeonsAndDatabasesController {
             break;
           case "get_items":
             $this->get_items();
+            break;
+          case "delete_item_from_inventory":
+            $this->delete_item_from_inventory();
+            break;
+          case "get_inventories_in_inventory":
+            $this->get_inventories_in_inventory();
+            break;
+          case "get_inventory_info":
+            $this->get_inventory_info();
+            break;
+          case "add_inventory_to_inventory":
+            $this->add_inventory_to_inventory();
+            break;
+          case "search_items":
+            $this->search_items();
+            break;
+          case "search":
+            $this->search();
             break;
           case "logout":
             $this->destroySession();
@@ -209,7 +229,7 @@ class DungeonsAndDatabasesController {
     public function delete_char_from_party(){
       $this->db->query("CALL remove_character_from_party(?, ?)", "ii", $_POST["character_id"], $_POST["party_id"]);
     }
-    
+
     public function set_inventory(){
       $_SESSION["inventory_id"]  = $_POST["inventory_id"];
     }
@@ -217,5 +237,23 @@ class DungeonsAndDatabasesController {
     public function get_items(){
       $items = $this->db->query("CALL items_from_inventory(?)", "i", $_SESSION["inventory_id"]);
       echo json_encode($items);
+    }
+
+    public function delete_item_from_inventory(){
+      $this->db->query("CALL remove_item_from_inventory(?, ?, ?)", "sii", $_POST["name"], $_POST["party_id"], $_SESSION["inventory_id"]);
+    }
+
+    public function get_inventories_in_inventory(){
+      $inventories = $this->db->query("CALL inventories_from_inventory(?)", "i", $_SESSION["inventory_id"]);
+      echo json_encode($inventories);
+    }
+
+    public function get_inventory_info(){
+      $inventories = $this->db->query("CALL get_inventory(?)", "i", $_SESSION["inventory_id"]);
+      echo json_encode($inventories[0]);
+    }
+
+    public function add_inventory_to_inventory(){
+      $this->db->query("CALL add_inventory_to_inventory(?, ?, ?, ?)", "siii", $_POST["inventory_name"], $_SESSION["inventory_id"], $_POST["maximum_capacity"], $_POST["fixed_current_weight"]);
     }
 }

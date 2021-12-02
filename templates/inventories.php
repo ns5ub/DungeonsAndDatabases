@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<style>
-
-</style>
-
 <html lang="en">
 
 <head>
@@ -15,6 +11,15 @@
     <meta name="author" content="Nikita Saxena (ns5ub), Kevin Li (kl7ck), Zoe Pham (zcp7yd)">
 
     <title>Dungeons And Databases: My Inventories</title>
+
+    <style>
+      .scrolling{
+        max-height: 100px;
+        margin-bottom: 10px;
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
 
     <!-- 3. link bootstrap -->
     <!-- if you choose to use CDN for CSS bootstrap -->
@@ -32,9 +37,25 @@
 
         $(document).ready(function(){
           display_items();
+          display_subinventories();
+          display_inventory_information();
+
+          $('button#addInventorySubmit').click(function(){
+            form_data = $('form#addInventoryForm').serializeArray();
+            console.log(form_data);
+
+            if(form_data[0]["value"].length > 0 && !isNaN(form_data[1]["value"])){
+              if(form_data[2]["value"] === ''){
+                form_data[2]["value"] = '-1';
+              }
+              $.post("<?=$this->url?>/add_inventory_to_inventory", form_data, function(response){ location.reload(); });
+            }
+
+          });
+
         });
 
-        function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, desc, quantity) {
+        function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             this.name = name;
             this.party_id = party_id;
             this.is_magical = is_magical;
@@ -42,60 +63,94 @@
             this.attunement = attunement;
             this.equipment_category = equipment_category;
             this.weight = weight;
-            this.desc = desc;
+            this.description = description;
             this.quantity = quantity;
+        }
+
+        function display_subinventories(){
+          var found_inventories = null;
+          $.post("<?=$this->url?>/get_inventories_in_inventory", function(response) {
+            console.log(response);
+            found_inventories = JSON.parse(response);
+
+
+            var subinventories_table = document.getElementById("subinventories_table");
+            if (found_inventories != null  && found_inventories.length != 0) {
+              for (var num in found_inventories) {
+                  inventory = found_inventories[num];
+                  var newRow = subinventories_table.insertRow(subinventories_table.rows.length);
+                  newRow.id = inventory.inventory_id_inner_bag;
+                  newRow.insertCell(0).textContent = inventory.inventory_name;
+
+                  newRow.addEventListener("mouseover", function() {
+                    subinventories_table.clickedRow = this.rowIndex;
+                  });
+
+                  newRow.addEventListener("click", function() {
+                    var subinventories_table = document.getElementById("subinventories_table");
+                    var inventory_id = subinventories_table.rows.item(subinventories_table.clickedRow).id;
+                    $.post("<?=$this->url?>/set_inventory", { "inventory_id" : inventory_id});
+                    location.reload();
+                  });
+              }
+            }
+          });
+        }
+
+        function display_inventory_information(){
+          $.post("<?=$this->url?>/get_inventory_info", function(response) {
+            json_response = JSON.parse(response);
+            console.log(json_response);
+            document.getElementById("inventory_name").innerHTML = json_response.inventory_name;
+            document.getElementById("max_weight").innerHTML = "Maximum Weight: " + json_response.maximum_capacity;
+            if(json_response.fixed_current_weight != -1){
+              document.getElementById("fixed_weight").text = "(But Always: " + json_response.fixed_current_weight + ")";
+            }
+          });
         }
 
         function display_items() {
             var found_items = null;
 
-            let table_id = (n) => parseInt(n) + 1;
-
             $.post("<?=$this->url?>/get_items", function(response) {
-              console.log(response);
-              console.log(JSON.parse(response));
-            });
+              found_items = JSON.parse(response);
+              //console.log(found_items);
+              if (found_items != null && found_items.length != 0) {
+                inventory_items = {};
+                inventory_id = found_items[0].inventory_id;
 
-            var ajax = new XMLHttpRequest();
-            ajax.open("GET", "/ns5ub/dungeonsanddatabases/get_items", true);
-            ajax.responseType = "json";
-            ajax.send(null);
-
-            ajax.addEventListener("load", function() {
-                if (this.status == 200) { // worked
-                    //console.log(this.response);
-                    //found_comics = JSON.parse(this.response);
-                    found_items = this.response;
-
-                    if (found_items != null) {
-                        inventory_items = {};
-                        for (var num in found_items) {
-                            c = found_items[num];
-                            //console.log(c);
-                            var c_i = c.item_id;
-                            inventory_items[c_i] = new Items(i.name, i.party_id, i.is_magical, i.rarity, i.attunement, i.type, i.weight, i.desc);
-                            addToTable(table_id(num), i.name, i.party_id, i.is_magical, i.rarity, i.attunement, i.type, i.weight, i.desc);
-                        }
-                    }
+                for (var num in found_items) {
+                    i = found_items[num];
+                    //console.log(i);
+                    var i_i = i.item_name + "_" + i.party_id;
+                    inventory_items[i_i] = new Item(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
+                    addToItemTable(i.item_name, i.party_id, i.is_magical, i.rarity, i.attunement, i.equipment_category, i.weight, i.description, i.item_quantity);
                 }
-            });
-            ajax.addEventListener("error", function() {
-                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>An Error in Retrieving</div>";
+
+                console.log(inventory_items);
+                console.log(inventory_id);
+              }
             });
         }
 
-        function addToTable(name, party_id, is_magical, rarity, attunement, type, weight, desc) {
+        function addToItemTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             var table = document.getElementById("items_table");
             var newRow = table.insertRow(table.rows.length);
-            newRow.insertCell(0).textContent = name;
-            newRow.insertCell(1).textContent = party_id;
-            newRow.insertCell(2).textContent = is_magical;
-            newRow.insertCell(3).textContent = rarity;
-            newRow.insertCell(4).textContent = attunement;
-            newRow.insertCell(5).textContent = type;
-            newRow.insertCell(6).textContent = weight;
-            newRow.insertCell(7).textContent = desc;
-            newRow.id = item_id;
+            //newRow.insertCell(0).textContent = quantity;
+            var q_id = "quantity_" + name + "_" + party_id;
+            newRow.insertCell(0).innerHTML = '<input type="number" style="width: 50px" id="' + q_id + '" value="' + quantity + '" step="1">';
+
+            newRow.insertCell(1).textContent = name;
+            newRow.insertCell(2).textContent = equipment_category;
+            var full_rarity = rarity;
+            if(attunement !== ""){
+              full_rarity = full_rarity + "(" + attunement + ")";
+            }
+            newRow.insertCell(3).textContent = full_rarity;
+            newRow.insertCell(4).textContent = weight;
+            newRow.insertCell(5).innerHTML = '<p class="scrolling">' + description + '</p>';
+            newRow.insertCell(6).innerHTML = '<button class="btn btn-close" onclick="delete_item()"></button>';
+            newRow.id = name + "_" + party_id;
 
             newRow.addEventListener("mouseover", function() {
                 table.clickedRow = this.rowIndex;
@@ -107,24 +162,13 @@
             var delRow = table.clickedRow;
             var item_id = table.rows.item(table.clickedRow).id;
 
-            delete table[table.rows.item(table.clickedRow).id];
+            //delete table[table.rows.item(table.clickedRow).id];
+            $.post("<?=$this->url?>/delete_item_from_inventory", { "name" : inventory_items[item_id].name, "party_id": inventory_items[item_id].party_id});
             table.deleteRow(delRow);
-
-            var ajax = new XMLHttpRequest();
-            ajax.open("POST", "/ns5ub/dungeonsanddatabases/delete_item", true);
-            var params = "item_id=" + item_id;
-            ajax.setRequestHeader('Content-type', 'application/x-www-form-urlencoded'); //https://stackoverflow.com/questions/58217910/xmlhttprequest-not-sending-post-data
-            ajax.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) { // worked
-                    //console.log(ajax.responseText);
-                    document.getElementById("message").innerHTML = "<div class='alert alert-success'>Deleted Successfully</div>";
-                }
-            }
-            ajax.addEventListener("error", function() {
-                document.getElementById("message").innerHTML = "<div class='alert alert-danger'>Deletion Error</div>";
-            });
-            ajax.send(params); //https://stackoverflow.com/questions/9713058/send-post-data-using-xmlhttprequest
+            delete inventory_items[item_id];
+            //console.log(inventory_items);
         }
+
     </script>
 </head>
 
@@ -151,51 +195,108 @@
     </div>
     <div>
         <main class="container">
-            <h3 class="text-center">My Inventories</h3>
+            <!--INVENTORY INFO-->
+            <h3 class="text-center" id="inventory_name"></h3>
+            <h4 class="text-center"> <i id="max_weight"> </i><i id="fixed_weight"> </i></h4>
 
-            <!-- List of Parties -->
+            <!--SELECT INVENTORY-->
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    Inventory Selection
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <button class="dropdown-item" type="button">Inventory 1</button>
+                    <button class="dropdown-item" type="button">Inventory 2</button>
+                    <button class="dropdown-item" type="button">Inventory 3</button>
+                </div>
+            </div>
+
+            <!--SUBINVENTORY TABLE-->
+
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col-6">
+                    <div class="col-11">
                         <div class="mb-3">
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Inventory Selection
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                                    <button class="dropdown-item" type="button">Inventory 1</button>
-                                    <button class="dropdown-item" type="button">Inventory 2</button>
-                                    <button class="dropdown-item" type="button">Inventory 3</button>
-                                </div>
-                            </div>
                             <div>
-                                <h3 class="centered-text">Items</h3>
+                                <h3 class="centered-text">Subinventories:</h3>
                             </div>
+
                             <div class="table-responsive">
-                                <table class="table table-sm table-inverse table-striped">
+                                <table class="table table-sm table-inverse table-striped" id="subinventories_table">
                                     <thead class="table-header">
                                         <tr>
-                                            <th>Item Name / #</th>
-                                            <th>Category</th>
-                                            <th>Description</th>
+                                          <th>Inventory Name</th>
                                         </tr>
                                     </thead>
                                 </table>
                             </div>
+
                         </div>
                     </div>
-                    <div class="col-4">
-                        <form class="card p-3 bg-light">
-                            <div class="mb-3">
-                                <input type="character" class="form-control" id="search" placeholder="Search Items">
-                            </div>
-                            <div class="col-auto">
-                                <button type="search" class="btn btn-primary ">Search</button>
-                            </div>
-                        </form>
-                    </div>
-
                 </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-11">
+                        <div class="mb-3">
+                          <form id = "addInventoryForm">
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">New Inventory Name:</span>
+                              <input type="text" class="form-control" name ="inventory_name" required>
+                            </div>
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">Maximum Weight</span>
+                              <input type="number" class="form-control" name ="maximum_capacity" required>
+                            </div>
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">Fixed Weight?</span>
+                              <input type="number" class="form-control" name ="fixed_current_weight">
+                            </div>
+                            <div class="text-center">
+                             <button type="reset" id="addInventorySubmit" class="btn btn-primary">Create New Subinventory</button>
+                            </div>
+                          </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITEM LISTING-->
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-11">
+                        <div class="mb-3">
+                            <div>
+                                <h3 class="centered-text">Items</h3>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-inverse table-striped" id="items_table">
+                                    <thead class="table-header">
+                                        <tr>
+                                          <th>Quantity</th>
+                                          <th>Name</th>
+                                          <th>Type</th>
+                                          <th>Rarity/Attunement</th>
+                                          <th>Weight</th>
+                                          <th>Description</th>
+                                          <th>Delete</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                  <div class="col-11">
+                      <div class="text-center">
+                        <a href="<?=$this->url?>/search" class="btn btn-primary">Add Official Items</a>
+                      </div>
+                  </div>
+                </div>
+
             </div>
 
     </div>
