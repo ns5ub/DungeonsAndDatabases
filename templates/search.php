@@ -94,7 +94,15 @@
             <h3 class="text-center">Items</h3>
             <div class="container">
                 <div class="row justify-content-center">
-                    <div class="col">
+                    <div class = "col">
+                        <div class = "col-4">
+                        <form id="addItem" onkeypress="return event.keyCode != 13">
+                                <input type="text" id="form1" name="pattern" class="form-control" placeholder="Item Name" />
+                                <input type="text" id="form1" name="pattern" class="form-control" placeholder="Item Quantity" />
+                                <button type="reset" id="addItem" class="btn btn-primary">Add Item</button>
+                            </form> 
+                        </div>
+
                         <div class="input-group mb-6">
                             <form id="searchInput" onkeypress="return event.keyCode != 13">
                                 <input type="search" id="form1" name="pattern" class="form-control" placeholder="Search Items" />
