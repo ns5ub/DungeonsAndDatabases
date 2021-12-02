@@ -30,6 +30,13 @@
       		$('button#searchButton').click(function(){
 	      		postSearchItems();
     		});
+
+            $('button#addItemButton').click(function(){
+                form_data = $('form#addItem').serializeArray();
+                $.post("<?= $this->url ?>/add_item", form_data);
+                window.location.href = ("<?= $this->url ?>/inventories";
+                return false;
+    		});
 	});
 
 	function postSearchItems() {
@@ -97,9 +104,9 @@
                     <div class = "col">
                         <div class = "col-4">
                         <form id="addItem" onkeypress="return event.keyCode != 13">
-                                <input type="text" id="itemName" name="pattern" class="form-control" placeholder="Item Name" />
-                                <input type="text" id="itemQuantity" name="pattern" class="form-control" placeholder="Item Quantity" />
-                                <button type="reset" id="addItem" class="btn btn-primary">Add Item</button>
+                                <input type="text" id="itemName" name="itemName" class="form-control" placeholder="Item Name" />
+                                <input type="text" id="itemQuantity" name="itemQuantity" class="form-control" placeholder="Item Quantity" />
+                                <button type="reset" id="addItemButton" class="btn btn-primary">Add Item</button>
                             </form> 
                         </div>
 
