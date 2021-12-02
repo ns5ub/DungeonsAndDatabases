@@ -39,6 +39,20 @@
           display_items();
           display_subinventories();
           display_inventory_information();
+
+          $('button#addInventorySubmit').click(function(){
+            form_data = $('form#addInventoryForm').serializeArray();
+            console.log(form_data);
+
+            if(form_data[0]["value"].length > 0 && !isNaN(form_data[1]["value"])){
+              if(form_data[2]["value"] === ''){
+                form_data[2]["value"] = '-1';
+              }
+              $.post("<?=$this->url?>/add_inventory_to_inventory", form_data, function(response){ location.reload(); });
+            }
+
+          });
+
         });
 
         function Item(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
@@ -85,8 +99,13 @@
 
         function display_inventory_information(){
           $.post("<?=$this->url?>/get_inventory_info", function(response) {
-            console.log(response);
-            console.log(JSON.parse(response));
+            json_response = JSON.parse(response);
+            console.log(json_response);
+            document.getElementById("inventory_name").innerHTML = json_response.inventory_name;
+            document.getElementById("max_weight").innerHTML = "Maximum Weight: " + json_response.maximum_capacity;
+            if(json_response.fixed_current_weight != -1){
+              document.getElementById("fixed_weight").text = "(But Always: " + json_response.fixed_current_weight + ")";
+            }
           });
         }
 
@@ -117,7 +136,10 @@
         function addToItemTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             var table = document.getElementById("items_table");
             var newRow = table.insertRow(table.rows.length);
-            newRow.insertCell(0).textContent = quantity;
+            //newRow.insertCell(0).textContent = quantity;
+            var q_id = "quantity_" + name + "_" + party_id;
+            newRow.insertCell(0).innerHTML = '<input type="number" style="width: 50px" id="' + q_id + '" value="' + quantity + '" step="1">';
+
             newRow.insertCell(1).textContent = name;
             newRow.insertCell(2).textContent = equipment_category;
             var full_rarity = rarity;
@@ -173,8 +195,11 @@
     </div>
     <div>
         <main class="container">
-            <h3 class="text-center" id="inventory_name">Hi</h3>
+            <!--INVENTORY INFO-->
+            <h3 class="text-center" id="inventory_name"></h3>
+            <h4 class="text-center"> <i id="max_weight"> </i><i id="fixed_weight"> </i></h4>
 
+            <!--SELECT INVENTORY-->
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                     Inventory Selection
@@ -209,6 +234,30 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-11">
+                        <div class="mb-3">
+                          <form id = "addInventoryForm">
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">New Inventory Name:</span>
+                              <input type="text" class="form-control" name ="inventory_name" required>
+                            </div>
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">Maximum Weight</span>
+                              <input type="number" class="form-control" name ="maximum_capacity" required>
+                            </div>
+                            <div class="input-group mb-3">
+                              <span class="input-group-text">Fixed Weight?</span>
+                              <input type="number" class="form-control" name ="fixed_current_weight">
+                            </div>
+                            <div class="text-center">
+                             <button type="reset" id="addInventorySubmit" class="btn btn-primary">Create New Subinventory</button>
+                            </div>
+                          </form>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- ITEM LISTING-->
@@ -240,20 +289,14 @@
                     </div>
                 </div>
 
-                <div>
-                  <div class="row justify-content-center">
-                    <div class="col-11">
-                      <form class="card p-3 bg-light">
-                          <div class="mb-3">
-                              <input type="character" class="form-control" id="search" placeholder="Search Items">
-                          </div>
-                          <div class="col-auto">
-                              <button type="search" class="btn btn-primary ">Search</button>
-                          </div>
-                      </form>
-                    </div>
+                <div class="row justify-content-center">
+                  <div class="col-11">
+                      <div class="text-center">
+                        <a href="<?=$this->url?>/search" class="btn btn-primary">Add Official Items</a>
+                      </div>
                   </div>
                 </div>
+
             </div>
 
     </div>

@@ -68,6 +68,67 @@ class DungeonsAndDatabasesController
         $this->login();
         break;
     }
+
+    public function run($parts) {
+        $command = $parts[0];
+        switch($command) {
+          case "parties":
+            $this->parties();
+            break;
+          case "characters":
+            $this->characters();
+            break;
+          case "inventories":
+            $this->inventories();
+            break;
+          case "get_user_parties":
+            $this->get_user_parties();
+            break;
+          case "add_user_to_party":
+            $this->add_user_to_party();
+            break;
+          case "delete_user_from_party":
+            $this->delete_user_from_party();
+            break;
+          case "delete_party":
+            $this->delete_party();
+            break;
+          case "set_party":
+            $this->set_party();
+            break;
+          case "get_characters":
+            $this->get_characters();
+            break;
+          case "add_character":
+            $this->add_character();
+            break;
+          case "delete_char_from_party":
+            $this->delete_char_from_party();
+            break;
+          case "set_inventory":
+            $this->set_inventory();
+            break;
+          case "get_items":
+            $this->get_items();
+            break;
+          case "delete_item_from_inventory":
+            $this->delete_item_from_inventory();
+            break;
+          case "get_inventories_in_inventory":
+            $this->get_inventories_in_inventory();
+            break;
+          case "get_inventory_info":
+            $this->get_inventory_info();
+            break;
+          case "add_inventory_to_inventory":
+            $this->add_inventory_to_inventory();
+            break;
+          case "logout":
+            $this->destroySession();
+          case "login":
+          default:
+            $this->login();
+            break;
   }
 
   private function destroySession()
@@ -198,6 +259,9 @@ class DungeonsAndDatabasesController
     if (!empty($check_doesnt_exist)) {
       echo json_encode(array());
       return;
+    }
+    public function add_inventory_to_inventory(){
+      $this->db->query("CALL add_inventory_to_inventory(?, ?, ?, ?)", "siii", $_POST["inventory_name"], $_SESSION["inventory_id"], $_POST["maximum_capacity"], $_POST["fixed_current_weight"]);
     }
     $this->db->query("CALL give_access(?, ?)", "si", $_POST["email"], $_POST["party_id"]);
     echo json_encode($data);
