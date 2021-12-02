@@ -70,6 +70,9 @@ class DungeonsAndDatabasesController
       case "search_items":
         $this->search_items();
         break;
+      case "add_item":
+        $this->add_item();
+        break;
       case "search":
         $this->search();
         break;
@@ -230,6 +233,11 @@ class DungeonsAndDatabasesController
     ];
     include("templates/search.php");
   }
+
+  public function add_item(){
+    $item_info = $this -> db->query("CALL add_to_bag(?, ?, ?, ?)", "siii", $_POST["itemName"], 1, $_SESSION["inventory_id"], $_POST["itemQuantity"]);
+  }
+
   //CHARACTERS PAGE
   public function get_characters()
   {
