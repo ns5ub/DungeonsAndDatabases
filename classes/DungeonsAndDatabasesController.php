@@ -12,63 +12,6 @@ class DungeonsAndDatabasesController
     $this->db = new Database();
   }
 
-  public function run($parts)
-  {
-    $command = $parts[0];
-    switch ($command) {
-      case "parties":
-        $this->parties();
-        break;
-      case "characters":
-        $this->characters();
-        break;
-      case "inventories":
-        $this->inventories();
-        break;
-      case "get_user_parties":
-        $this->get_user_parties();
-        break;
-      case "add_user_to_party":
-        $this->add_user_to_party();
-        break;
-      case "delete_user_from_party":
-        $this->delete_user_from_party();
-        break;
-      case "delete_party":
-        $this->delete_party();
-        break;
-      case "set_party":
-        $this->set_party();
-        break;
-      case "get_characters":
-        $this->get_characters();
-        break;
-      case "add_character":
-        $this->add_character();
-        break;
-      case "delete_char_from_party":
-        $this->delete_char_from_party();
-        break;
-      case "set_inventory":
-        $this->set_inventory();
-        break;
-      case "get_items":
-        $this->get_items();
-        break;
-      case "search_items":
-        $this->search_items();
-        break;
-      case "search":
-        $this->search();
-        break;
-      case "logout":
-        $this->destroySession();
-      case "login":
-      default:
-        $this->login();
-        break;
-    }
-
     public function run($parts) {
         $command = $parts[0];
         switch($command) {
@@ -122,6 +65,12 @@ class DungeonsAndDatabasesController
             break;
           case "add_inventory_to_inventory":
             $this->add_inventory_to_inventory();
+            break;
+          case "search_items":
+            $this->search_items();
+            break;
+          case "search":
+            $this->search();
             break;
           case "logout":
             $this->destroySession();
