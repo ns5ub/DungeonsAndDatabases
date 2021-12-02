@@ -29,8 +29,7 @@
             form_data = $('form#searchInput').serializeArray();
             $.post("<?= $this->url ?>/search_items", form_data, function(response) {
                 var json_response = JSON.parse(response);
-                var list = $('#item_list');
-                list.empty();
+                
                 for (i in json_response["items"]) {
                     var isi = json_response["items"][i];
                     addToSearchTable(isi.item_name, isi.party_id, isi.is_magical, isi.rarity, isi.attunement, isi.equipment_category, isi.weight, isi.description);
