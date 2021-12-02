@@ -225,7 +225,8 @@ class DungeonsAndDatabasesController
 
     $page_info = [
       "party_id" => $_SESSION["party_id"],
-      "party_name" => $_SESSION["party_name"]
+      "party_name" => $_SESSION["party_name"],
+      "inventory_id" => $_SESSION["inventory_id"]
     ];
     include("templates/search.php");
   }

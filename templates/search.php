@@ -97,8 +97,8 @@
                     <div class = "col">
                         <div class = "col-4">
                         <form id="addItem" onkeypress="return event.keyCode != 13">
-                                <input type="text" id="form1" name="pattern" class="form-control" placeholder="Item Name" />
-                                <input type="text" id="form1" name="pattern" class="form-control" placeholder="Item Quantity" />
+                                <input type="text" id="itemName" name="pattern" class="form-control" placeholder="Item Name" />
+                                <input type="text" id="itemQuantity" name="pattern" class="form-control" placeholder="Item Quantity" />
                                 <button type="reset" id="addItem" class="btn btn-primary">Add Item</button>
                             </form> 
                         </div>
