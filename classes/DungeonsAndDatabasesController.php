@@ -216,7 +216,19 @@ class DungeonsAndDatabasesController
   {
     $character_info = $this->db->query("CALL delete_party(?)", "i", $_POST["party_id"]);
   }
+  public function search()
+  {
+    $user = [
+      "email" => $_SESSION["email"],
+      "username" => $_SESSION["username"]
+    ];
 
+    $page_info = [
+      "party_id" => $_SESSION["party_id"],
+      "party_name" => $_SESSION["party_name"]
+    ];
+    include("templates/search.php");
+  }
   //CHARACTERS PAGE
   public function get_characters()
   {
