@@ -1,6 +1,6 @@
 <?php
   $dbserver = "mysql01.cs.virginia.edu";
-  $dbuser = "ns5ub";
-  $dbpass = "DBdnd.123";
+  $dbuser = "player";
+  $dbpass = "Pa55w0rd!test123";
   $dbdatabase = "ns5ub";
 ?>
