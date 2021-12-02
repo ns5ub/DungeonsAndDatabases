@@ -160,6 +160,16 @@ class DungeonsAndDatabasesController
 
   public function search()
   {
+    $user = [
+      "email" => $_SESSION["email"],
+      "username" => $_SESSION["username"]
+    ];
+
+    $page_info = [
+      "party_id" => $_SESSION["party_id"],
+      "party_name" => $_SESSION["party_name"],
+      "inventory_id" => $_SESSION["inventory_id"]
+    ];
     include("templates/search.php");
   }
 
