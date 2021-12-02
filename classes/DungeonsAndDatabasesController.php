@@ -256,7 +256,7 @@ class DungeonsAndDatabasesController
   //Item Search
   public function search_items()
   {
-    $item_info = $this->db->query("CALL search_by_keyword(?)", "i", $_POST["pattern"]);
+    $item_info = $this->db->query("CALL search_by_keyword(?)", "s", $_POST["pattern"]);
     $data = array();
     $data["items"] = $item_info;
     echo json_encode($data);

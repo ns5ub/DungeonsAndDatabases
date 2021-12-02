@@ -96,7 +96,7 @@
                 <div class="row justify-content-center">
                     <div class="col">
                         <div class="input-group mb-6">
-                            <form id="searchInput">
+                            <form id="searchInput" onkeypress="return event.keyCode != 13">
                                 <input type="search" id="form1" name="pattern" class="form-control" placeholder="Search Items" />
                                 <button type="reset" id="searchButton" class="btn btn-primary">
                                     <i class="fas fa-search"></i>
