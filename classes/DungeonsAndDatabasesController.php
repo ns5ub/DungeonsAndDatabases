@@ -61,6 +61,9 @@ class DungeonsAndDatabasesController {
           case "get_inventory_info":
             $this->get_inventory_info();
             break;
+          case "add_inventory_to_inventory":
+            $this->add_inventory_to_inventory();
+            break;
           case "logout":
             $this->destroySession();
           case "login":
@@ -240,5 +243,9 @@ class DungeonsAndDatabasesController {
     public function get_inventory_info(){
       $inventories = $this->db->query("CALL get_inventory(?)", "i", $_SESSION["inventory_id"]);
       echo json_encode($inventories[0]);
+    }
+
+    public function add_inventory_to_inventory(){
+      $this->db->query("CALL add_inventory_to_inventory(?, ?, ?, ?)", "siii", $_POST["inventory_name"], $_SESSION["inventory_id"], $_POST["maximum_capacity"], $_POST["fixed_current_weight"]);
     }
 }
