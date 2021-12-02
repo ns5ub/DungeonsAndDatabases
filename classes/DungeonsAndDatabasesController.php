@@ -58,6 +58,9 @@ class DungeonsAndDatabasesController
       case "search_items":
         $this->search_items();
         break;
+      case "search":
+        $this->search();
+        break;
       case "logout":
         $this->destroySession();
       case "login":
@@ -153,6 +156,11 @@ class DungeonsAndDatabasesController
     ];
 
     include("templates/inventories.php");
+  }
+
+  public function search()
+  {
+    include("templates/search.php");
   }
 
   public function get_user_parties()
