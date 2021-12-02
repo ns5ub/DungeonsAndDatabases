@@ -26,7 +26,13 @@
 
 	<script type="text/javascript">
 	$(document).ready(function(){
-        $('button#searchButton').click(function() {
+
+      		$('button#searchButton').click(function(){
+	      		postSearchItems();
+    		});
+	});
+
+	function postSearchItems() {
 	    console.log("we got in");	
 	    form_data = $('form#searchInput').serializeArray();
 	    console.log("we did the serial");
@@ -40,8 +46,7 @@
                 }
 	    });
 	    console.log("posted");
-	});
-	});
+	}
 
         function addToSearchTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description) {
             var table = document.getElementById("items_search_table");
@@ -93,7 +98,7 @@
                         <div class="input-group mb-6">
                             <form id="searchInput">
                                 <input type="search" id="form1" name="pattern" class="form-control" placeholder="Search Items" />
-                                <button type="submit" id="searchButton" class="btn btn-primary">
+                                <button type="reset" id="searchButton" class="btn btn-primary">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </form>
