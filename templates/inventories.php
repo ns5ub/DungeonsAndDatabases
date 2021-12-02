@@ -136,7 +136,10 @@
         function addToItemTable(name, party_id, is_magical, rarity, attunement, equipment_category, weight, description, quantity) {
             var table = document.getElementById("items_table");
             var newRow = table.insertRow(table.rows.length);
-            newRow.insertCell(0).textContent = quantity;
+            //newRow.insertCell(0).textContent = quantity;
+            var q_id = "quantity_" + name + "_" + party_id;
+            newRow.insertCell(0).innerHTML = '<input type="number" style="width: 50px" id="' + q_id + '" value="' + quantity + '" step="1">';
+
             newRow.insertCell(1).textContent = name;
             newRow.insertCell(2).textContent = equipment_category;
             var full_rarity = rarity;
@@ -286,20 +289,14 @@
                     </div>
                 </div>
 
-                <div>
-                  <div class="row justify-content-center">
-                    <div class="col-11">
-                      <form class="card p-3 bg-light">
-                          <div class="mb-3">
-                              <input type="character" class="form-control" id="search" placeholder="Search Items">
-                          </div>
-                          <div class="col-auto">
-                              <button type="search" class="btn btn-primary ">Search</button>
-                          </div>
-                      </form>
-                    </div>
+                <div class="row justify-content-center">
+                  <div class="col-11">
+                      <div class="text-center">
+                        <a href="<?=$this->url?>/search" class="btn btn-primary">Add Official Items</a>
+                      </div>
                   </div>
                 </div>
+
             </div>
 
     </div>
